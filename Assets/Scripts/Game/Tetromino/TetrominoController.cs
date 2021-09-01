@@ -13,6 +13,14 @@ public class TetrominoController : MonoBehaviour, IPlayerActions
     public PieceType CurrentHoldPieceType = PieceType.Unkown;
     public GameObject CurrentHoldPieceGameObject;
 
+    public float ARR;
+    public float DAS;
+    public float SDF;
+    
+    public float ARRTime;
+    public float DASTime;
+    public float SDFTime;
+
     public List<GameObject> SevenBag;
 
     float TimeElapsed = 0f;
@@ -45,6 +53,32 @@ public class TetrominoController : MonoBehaviour, IPlayerActions
 
         TimeElapsed += Time.deltaTime;
 
+        if(controls.Player.Move.phase == InputActionPhase.Started){
+            DASTime += Time.deltaTime;
+
+            if(DASTime >= DAS / 1000){
+                ARRTime += Time.deltaTime;
+
+                if(ARRTime >= ARR / 1000){
+                    ARRTime = 0;
+                    
+                    MovePieceInDirection(controls.Player.Move.ReadValue<Vector2>());
+                }
+            }
+        }else{
+            DASTime = 0;
+        }
+
+        if(controls.Player.MoveDown.phase == InputActionPhase.Started){
+            SDFTime += Time.deltaTime;
+
+            if(SDFTime >= SDF / 1000){
+                SDFTime = 0;
+
+                MovePieceDown();
+            }
+        }
+
         if(TimeElapsed >= 1f){
             TimeElapsed = 0f;
 
@@ -63,15 +97,21 @@ public class TetrominoController : MonoBehaviour, IPlayerActions
 
     private void PlaceTetromino(){
         var gameMatrix = GetComponentInParent<GameMatrix>();
+        var tetromino = ActiveTetrominoObj.GetComponent<Tetromino>();
+
+
+        GameLogic.PlaceTetrominoInMatrix(tetromino.GetMinos(), gameMatrix);
+
+        tetromino.RemoveGhostPiece();
+
+        var is3CornerRotation = tetromino.Is3CornerRotation;
+        var pieceType = tetromino.PieceType;
 
         ActiveTetrominoObj.tag = "Untagged";
 
-        GameLogic.PlaceTetrominoInMatrix(ActiveTetrominoObj.GetComponent<Tetromino>().GetMinos(), gameMatrix);
-        ActiveTetrominoObj.GetComponent<Tetromino>().RemoveGhostPiece();
-
         SpawnNewTetromino();
 
-        gameMatrix.ClearLines();
+        gameMatrix.ClearLines(is3CornerRotation, pieceType);
     }
 
     private void SpawnNewTetromino()
@@ -117,14 +157,7 @@ public class TetrominoController : MonoBehaviour, IPlayerActions
         try{
             if(context.phase != InputActionPhase.Performed) return;
 
-            var dir = context.ReadValue<Vector2>();
-
-            var dirVec = new Vector3(dir.x, 0, 0);
-
-            if(GameLogic.AreMinosOutOfBoundsNextMove(ActiveTetrominoObj.GetComponent<Tetromino>().GetMinos(), dirVec)) return;
-            if(GameLogic.AreCellsInDirectionOccupied(ActiveTetrominoObj.GetComponent<Tetromino>().GetMinos(), GetComponentInParent<GameMatrix>(), dirVec)) return;
-
-            ActiveTetrominoObj.transform.position += dirVec;
+            MovePieceInDirection(context.ReadValue<Vector2>());
         }catch(Exception ){ }
     }
 
@@ -132,16 +165,7 @@ public class TetrominoController : MonoBehaviour, IPlayerActions
     {
         if(context.phase != InputActionPhase.Performed) return;
 
-        if(GameLogic.AreMinosOutOfBoundsNextMove(ActiveTetrominoObj.GetComponent<Tetromino>().GetMinos(), Vector3.down)) return;
-        if(GameLogic.AreCellsInDirectionOccupied(ActiveTetrominoObj.GetComponent<Tetromino>().GetMinos(), GetComponentInParent<GameMatrix>(), Vector3.down)) {
-            Debug.Log("Cell in direction is occupied");
-            PlaceTetromino();
-            return;
-        }
-
-        ActiveTetrominoObj.transform.position += Vector3.down;
-
-        GetComponentInParent<ScoreManager>().AddScore(1);
+        MovePieceDown();
     }
 
     public void OnHardDrop(InputAction.CallbackContext context)
@@ -157,6 +181,10 @@ public class TetrominoController : MonoBehaviour, IPlayerActions
 
             if(!x){
                 PlaceTetromino();
+
+                var soundEffectManager = GameObject.FindGameObjectWithTag("SoundEffectManager").GetComponent<SoundEffectManager>();
+                soundEffectManager.PlayHardDropSound();
+
                 return;
             }
             
@@ -169,6 +197,11 @@ public class TetrominoController : MonoBehaviour, IPlayerActions
         if(context.phase != InputActionPhase.Performed) return;
             
         var result = RotateClockwise();
+
+        if(!result) return;
+
+        var soundEffectManager = GameObject.FindGameObjectWithTag("SoundEffectManager").GetComponent<SoundEffectManager>();
+        soundEffectManager.PlayRotateSound();
     }
 
     public void OnRotateCounterClockwise(InputAction.CallbackContext context)
@@ -176,6 +209,11 @@ public class TetrominoController : MonoBehaviour, IPlayerActions
         if(context.phase != InputActionPhase.Performed) return;
             
         var result = RotateCounterClockwise();
+
+        if(!result) return;
+
+        var soundEffectManager = GameObject.FindGameObjectWithTag("SoundEffectManager").GetComponent<SoundEffectManager>();
+        soundEffectManager.PlayRotateSound();
     }
 
     public void OnHold(InputAction.CallbackContext context)
@@ -208,4 +246,28 @@ public class TetrominoController : MonoBehaviour, IPlayerActions
 
         newPiece.tag = "ActiveTetromino";
     }   
+
+    private void MovePieceInDirection(Vector3 dir){
+        var dirVec = new Vector3(dir.x, 0, 0);
+
+        if(GameLogic.AreMinosOutOfBoundsNextMove(ActiveTetrominoObj.GetComponent<Tetromino>().GetMinos(), dirVec)) return;
+        if(GameLogic.AreCellsInDirectionOccupied(ActiveTetrominoObj.GetComponent<Tetromino>().GetMinos(), GetComponentInParent<GameMatrix>(), dirVec)) return;
+
+        ActiveTetrominoObj.transform.position += dirVec;
+
+        var soundEffectManager = GameObject.FindGameObjectWithTag("SoundEffectManager").GetComponent<SoundEffectManager>();
+        soundEffectManager.PlayMoveSound();
+    }
+
+    private void MovePieceDown(){
+        if(GameLogic.AreMinosOutOfBoundsNextMove(ActiveTetrominoObj.GetComponent<Tetromino>().GetMinos(), Vector3.down)) return;
+        if(GameLogic.AreCellsInDirectionOccupied(ActiveTetrominoObj.GetComponent<Tetromino>().GetMinos(), GetComponentInParent<GameMatrix>(), Vector3.down)) {
+            Debug.Log("Cell in direction is occupied");
+            return;
+        }
+
+        ActiveTetrominoObj.transform.position += Vector3.down;
+
+        GetComponentInParent<ScoreManager>().AddScore(1);
+    }
 }

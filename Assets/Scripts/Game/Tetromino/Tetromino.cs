@@ -8,6 +8,7 @@ public class Tetromino : MonoBehaviour
     public PieceType PieceType;
     public GameObject GhostPiece;
     public int RotationIndex;
+    public bool Is3CornerRotation;
 
     public void Start(){
         GenerateGhostPiece();
@@ -44,23 +45,19 @@ public class Tetromino : MonoBehaviour
         for(var i = 0; i < GetMinos().Length; i++)
         {
             var mino = GetMinos()[i];
-
-            Debug.Log($"Mino {i} POS: {mino.transform.position}");
         }
-        var x = GameLogic.AreMinosValidOnPosition(GetMinos(), gameManager.GetComponent<GameMatrix>());
 
-        Debug.Log("Base rotation valid: " + x);
-
-        if(x){
+        if(GameLogic.AreMinosValidOnPosition(GetMinos(), gameManager.GetComponent<GameMatrix>())){
             UpdateRotationIndex(clockwise);
 
             if(PieceType == PieceType.T){
                 var result = ThreeCornerCheck(gameManager.GetComponent<GameMatrix>(), transform.position);
 
-                // Debug.Log("3 Corner Check (1): " + result);
-
                 if(result){
+                    Is3CornerRotation = true;
                     PlayTSpinRotationSound();
+                }else{
+                    Is3CornerRotation = false;
                 }
             }
             
@@ -82,7 +79,7 @@ public class Tetromino : MonoBehaviour
         for(var test = 1; test < 5; test++){
             var futureRotationIndex = GetFutureRotationIndex(clockwise);
 
-            Vector2Int value = Vector2Int.zero;
+            var value = Vector2Int.zero;
 
             if(clockwise){
                 value = kickTable[test, RotationIndex];
@@ -97,7 +94,6 @@ public class Tetromino : MonoBehaviour
             if(!clockwise)  
                 vectorValue = Vector3.Scale(vectorValue, new Vector3(-1, -1));
 
-            Debug.Log($"Offset of test {test}: {vectorValue}");
             transform.position += vectorValue;
 
             var isValid = true;
@@ -119,8 +115,9 @@ public class Tetromino : MonoBehaviour
                 Debug.Log("HUREENSOHN 2");
                 transform.position -= vectorValue;
             }
-            else
+            else{
                 break;
+            }
 
             if(test == kickTable.Length - 1){
                 Debug.Log("HUREENSOHN 3");
@@ -132,8 +129,6 @@ public class Tetromino : MonoBehaviour
         }
 
         if(!GameLogic.AreMinosValidOnPosition(GetMinos(), gameManager.GetComponent<GameMatrix>())){
-            
-            Debug.Log("Kick table failed");
             RotateMinos(!clockwise);
             return false;
         }
@@ -145,10 +140,12 @@ public class Tetromino : MonoBehaviour
         if(PieceType == PieceType.T){
             var result = ThreeCornerCheck(gameManager.GetComponent<GameMatrix>(), transform.position);
 
-            // Debug.Log("3 Corner Check (2): " + result);
+            Is3CornerRotation = true;
 
             if(result){
                 PlayTSpinRotationSound();
+            }else{
+                Is3CornerRotation = false;
             }
         }
 
@@ -157,8 +154,6 @@ public class Tetromino : MonoBehaviour
 
     private bool ThreeCornerCheck(GameMatrix gameMatrix, Vector3 position)
     {
-        // if(pos.x <= 0 || pos.y < 0 || pos.x > 10)
-
         var downPos = position + Vector3.down;
         var upPos = position + Vector3.up;
 
@@ -218,12 +213,10 @@ public class Tetromino : MonoBehaviour
     }
 
     private void PlayTSpinRotationSound(){
-        
         var soundEffectManager = GameObject.FindGameObjectWithTag("SoundEffectManager");
         var soundEffectManagerComponent = soundEffectManager.GetComponent<SoundEffectManager>();
-        var audioSource = soundEffectManager.GetComponent<AudioSource>();
-
-        audioSource.PlayOneShot(soundEffectManagerComponent.TSpinSound);
+        
+        soundEffectManagerComponent.PlayTSpinSound();
     
     }
 

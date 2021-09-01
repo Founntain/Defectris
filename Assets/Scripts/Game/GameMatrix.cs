@@ -38,7 +38,7 @@ public class GameMatrix : MonoBehaviour
         this.Text.text = s;
     }
 
-    public void ClearLines(){
+    public void ClearLines(bool is3CornerRotation, PieceType pieceType){
         var rowsCleared = 0;
 
         for(var y = 0; y < MatrixHeigth; y++){
@@ -56,27 +56,47 @@ public class GameMatrix : MonoBehaviour
         if(rowsCleared == 0) return;
 
         var score = 0;
-
-        switch(rowsCleared){
-            case 1: 
-                score = 100;
-                break;
-            case 2: 
-                score = 300;
-                break;
-            case 3: 
-                score = 500;
-                break;
-            case 4: 
-                score = 800;
-                break;
-            default:
-                score = 0;
-                break;
+        if(is3CornerRotation && pieceType == PieceType.T){
+            switch(rowsCleared){
+                case 1: 
+                    score = 800;
+                    break;
+                case 2: 
+                    score = 1200;
+                    break;
+                case 3: 
+                    score = 1600;
+                    break;
+            }
+        }else{
+            switch(rowsCleared){
+                case 1: 
+                    score = 100;
+                    break;
+                case 2: 
+                    score = 300;
+                    break;
+                case 3: 
+                    score = 500;
+                    break;
+                case 4: 
+                    score = 800;
+                    break;
+                default:
+                    score = 0;
+                    break;
+            }
         }
 
         var sm = GetComponent<ScoreManager>();
 
+        var soundEffectManager = GameObject.FindGameObjectWithTag("SoundEffectManager").GetComponent<SoundEffectManager>();
+
+        if(is3CornerRotation && pieceType == PieceType.T)
+            soundEffectManager.PlayTSpinLineClearSound();
+        else
+            soundEffectManager.PlayLineClearSound();
+        
         sm.AddScore(score * sm.Level);
         sm.AddLines(rowsCleared);
     }

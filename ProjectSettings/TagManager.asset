@@ -8,6 +8,7 @@ TagManager:
   - TetrominoController
   - GameManager
   - CurrentHoldPiece
+  - SoundEffectManager
   layers:
   - Default
   - TransparentFX
