@@ -49,6 +49,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PieceType: 0
   GhostPiece: {fileID: 9049580500161640253, guid: d80a61787bfceb44d8b1e4999e327ee6, type: 3}
+  RotationIndex: 0
+  Is3CornerRotation: 0
 --- !u!1 &1537054661438499773
 GameObject:
   m_ObjectHideFlags: 0

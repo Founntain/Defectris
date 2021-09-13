@@ -36,6 +36,15 @@ public class Tetromino : MonoBehaviour
         return GetComponentsInChildren<Mino>();
     }
 
+    public Vector3 GetPivotCoordinate(){
+        foreach(var mino in GetMinos()){
+            if(mino.IsPivot)
+                return mino.transform.position;
+        }
+
+        return Vector3.zero;
+    }
+
     public bool RotatePiece(bool clockwise = true){
         var rotMatrix = clockwise ? GameLogic.ClockwiseRotationMatrix : GameLogic.CounterClockwiseRotationMatrix;
         var gameManager = GameObject.FindGameObjectWithTag("GameManager");
@@ -69,7 +78,7 @@ public class Tetromino : MonoBehaviour
 
         switch(PieceType){
             case PieceType.I:
-                kickTable = KickTables.GetIKickTable();
+                kickTable = KickTables.GetIKickTable2();
                 break;
             default:
                 kickTable = KickTables.GetJLSTZKickTable();
@@ -130,6 +139,113 @@ public class Tetromino : MonoBehaviour
 
         if(!GameLogic.AreMinosValidOnPosition(GetMinos(), gameManager.GetComponent<GameMatrix>())){
             RotateMinos(!clockwise);
+            return false;
+        }
+        
+        UpdateRotationIndex(clockwise);
+
+        GhostPiece.GetComponent<GhostPiece>().RotateGhostPiece(clockwise);
+
+        if(PieceType == PieceType.T){
+            var result = ThreeCornerCheck(gameManager.GetComponent<GameMatrix>(), transform.position);
+
+            Is3CornerRotation = true;
+
+            if(result){
+                PlayTSpinRotationSound();
+            }else{
+                Is3CornerRotation = false;
+            }
+        }
+
+        return true;
+    }
+
+    public bool RotatePiece2(bool clockwise = true){
+        var rotMatrix = clockwise ? GameLogic.ClockwiseRotationMatrix : GameLogic.CounterClockwiseRotationMatrix;
+        var gameManager = GameObject.FindGameObjectWithTag("GameManager");
+
+        RotateMinos2(clockwise);
+
+        // if(PieceType == PieceType.I){
+        //     var iOffset = Vector3.zero;
+
+        //     if(clockwise){
+        //         switch(RotationIndex){
+        //             case 0:
+        //                 iOffset = Vector3.right;
+        //                 break;
+        //             case 1:
+        //                 iOffset = Vector3.down;
+        //                 break;
+        //             case 2:
+        //                 iOffset = Vector3.left;
+        //                 break;
+        //             case 3:
+        //                 iOffset = Vector3.up;
+        //                 break;
+        //         }
+        //     }else{
+        //         switch(RotationIndex){
+        //             case 0:
+        //                 iOffset = Vector3.down;
+        //                 break;
+        //             case 3:
+        //                 iOffset = Vector3.right;
+        //                 break;
+        //             case 2:
+        //                 iOffset = Vector3.up;
+        //                 break;
+        //             case 1:
+        //                 iOffset = Vector3.left;
+        //                 break;
+        //         }
+        //     }
+
+        //     transform.position += iOffset;
+        // }
+            
+        Vector2Int[,] kickTable = null;
+
+        switch(PieceType){
+            case PieceType.I:
+                kickTable = KickTables.GetIKickTable2();
+                break;
+            case PieceType.O:
+                kickTable = KickTables.GetOKickTable();
+                break;
+            default:
+                kickTable = KickTables.GetJLSTZKickTable2();
+                break;
+        }
+
+        var isValid = false;
+
+        for(var test = 0; test < 5; test++){
+            var offset1 = kickTable[test, RotationIndex];
+            var offset2 = kickTable[test, GetFutureRotationIndex(clockwise)];
+
+            var endOffset = offset1 - offset2;
+            
+            var offset = new Vector3(endOffset.x, endOffset.y);
+
+            if(!GameLogic.AreCellsInDirectionOccupied(GetMinos(), gameManager.GetComponent<GameMatrix>(), offset)){
+
+                Debug.Log("Offset used: ");
+                Debug.Log("O1: " + offset1);
+                Debug.Log("O2: " + offset2);
+                Debug.Log("FO: " + offset);
+
+                isValid = true;
+
+                transform.position += offset;
+
+                break;
+            }
+        }
+
+        if(!isValid){
+            RotateMinos2(!clockwise);
             return false;
         }
         
@@ -227,6 +343,25 @@ public class Tetromino : MonoBehaviour
             var minoPos = mino.transform.localPosition;
 
             var newPos = rotMatrix.MultiplyVector(minoPos);
+
+            mino.transform.localPosition = newPos;
+        }
+    }
+
+    private void RotateMinos2(bool clockwise = true){
+        var rotMatrix = clockwise 
+                            ? new Vector2Int[2] { new Vector2Int(0, -1), new Vector2Int(1, 0) }
+                            : new Vector2Int[2] { new Vector2Int(0, 1), new Vector2Int(-1, 0) };
+
+        var pivot = GetPivotCoordinate();
+
+        foreach(var mino in GetMinos()){
+            var relativePos = mino.transform.localPosition;
+
+            var newXPos = (rotMatrix[0].x * relativePos.x) + (rotMatrix[1].x * relativePos.y);
+            var newYPos = (rotMatrix[0].y * relativePos.x) + (rotMatrix[1].y * relativePos.y);
+
+            var newPos = new Vector3(newXPos, newYPos);
 
             mino.transform.localPosition = newPos;
         }

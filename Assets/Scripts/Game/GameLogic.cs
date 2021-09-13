@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -16,6 +15,8 @@ public static class GameLogic
         new Vector4(-1, 0, 0 ,0),
         new Vector4(0, 0, 0 ,0),
         new Vector4(0, 0, 0 ,0));
+
+    public static int Combo;
 
     public static bool AreMinosOutOfBounds(Mino[] minos){
         foreach(var mino in minos){
@@ -132,7 +133,7 @@ public static class GameLogic
 
     public static bool AreCellsInDirectionOccupied(Mino[] minos, GameMatrix gameMatrix, Vector3 direction){
         foreach(var mino in minos){
-            if(GameLogic.AreMinosOutOfBoundsNextMove(minos, direction)) continue;
+            if(GameLogic.AreMinosOutOfBoundsNextMove(minos, direction)) return true;
 
             var pos = mino.transform.position + direction;
 

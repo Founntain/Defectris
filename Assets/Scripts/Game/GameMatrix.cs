@@ -53,7 +53,10 @@ public class GameMatrix : MonoBehaviour
             }
         }
 
-        if(rowsCleared == 0) return;
+        if(rowsCleared == 0) {
+            GameLogic.Combo = -1;
+            return;
+        }
 
         var score = 0;
         if(is3CornerRotation && pieceType == PieceType.T){
@@ -92,11 +95,17 @@ public class GameMatrix : MonoBehaviour
 
         var soundEffectManager = GameObject.FindGameObjectWithTag("SoundEffectManager").GetComponent<SoundEffectManager>();
 
+        GameLogic.Combo++;
+
+        if(GameLogic.Combo > 0){
+            sm.AddScore(50 * GameLogic.Combo * sm.Level);
+        }
+
         if(is3CornerRotation && pieceType == PieceType.T)
             soundEffectManager.PlayTSpinLineClearSound();
         else
             soundEffectManager.PlayLineClearSound();
-        
+
         sm.AddScore(score * sm.Level);
         sm.AddLines(rowsCleared);
     }

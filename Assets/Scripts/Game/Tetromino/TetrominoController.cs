@@ -13,6 +13,8 @@ public class TetrominoController : MonoBehaviour, IPlayerActions
     public PieceType CurrentHoldPieceType = PieceType.Unkown;
     public GameObject CurrentHoldPieceGameObject;
 
+    public Vector2 LastMoveDirection;
+
     public float ARR;
     public float DAS;
     public float SDF;
@@ -54,6 +56,13 @@ public class TetrominoController : MonoBehaviour, IPlayerActions
         TimeElapsed += Time.deltaTime;
 
         if(controls.Player.Move.phase == InputActionPhase.Started){
+            var move = controls.Player.Move.ReadValue<Vector2>();;
+
+            if(LastMoveDirection == null || LastMoveDirection != move){
+                LastMoveDirection = move;
+                DASTime = 0;
+            }
+
             DASTime += Time.deltaTime;
 
             if(DASTime >= DAS / 1000){
@@ -132,14 +141,14 @@ public class TetrominoController : MonoBehaviour, IPlayerActions
         // if(GameLogic.IsMinoOutOfBoundsNextRotation(ActiveTetrominoObj.GetComponent<Tetromino>().GetMinos())) return;
         // if(GameLogic.IsCellInRotationOccupied(ActiveTetrominoObj.GetComponent<Tetromino>().GetMinos(), GetComponentInParent<GameMatrix>())) return;
 
-        return ActiveTetrominoObj.GetComponent<Tetromino>().RotatePiece();
+        return ActiveTetrominoObj.GetComponent<Tetromino>().RotatePiece2();
     }
 
     private bool RotateCounterClockwise(){
         // if(GameLogic.IsMinoOutOfBoundsNextRotation(ActiveTetrominoObj.GetComponent<Tetromino>().GetMinos(), false)) return;
         // if(GameLogic.IsCellInRotationOccupied(ActiveTetrominoObj.GetComponent<Tetromino>().GetMinos(), GetComponentInParent<GameMatrix>(), false)) return;
 
-       return ActiveTetrominoObj.GetComponent<Tetromino>().RotatePiece(false);
+       return ActiveTetrominoObj.GetComponent<Tetromino>().RotatePiece2(false);
     }
 
     public bool IsNextMoveValid(Vector3 dirVec){

@@ -66,4 +66,108 @@ public class KickTables : MonoBehaviour
 
         return kickTable;
     }
+
+    public static Vector2Int[,] GetIKickTable2(){
+        var kickTable = new Vector2Int[5, 4];
+
+        kickTable[0, 0] = Vector2Int.zero;
+        kickTable[0, 1] = Vector2Int.zero;
+        kickTable[0, 2] = Vector2Int.zero;
+        kickTable[0, 3] = Vector2Int.zero;
+
+        kickTable[1, 0] = new Vector2Int(-2, 0);
+        kickTable[1, 1] = new Vector2Int(1, 0);
+        kickTable[1, 2] = new Vector2Int(-2, -1);
+        kickTable[1, 3] = new Vector2Int(1, 2);
+        
+        kickTable[2, 0] = new Vector2Int(-1, 0);
+        kickTable[2, 1] = new Vector2Int(2, 0);
+        kickTable[2, 2] = new Vector2Int(-1, 2);
+        kickTable[2, 3] = new Vector2Int(2, -1);
+
+        kickTable[3, 0] = new Vector2Int(2, 0);
+        kickTable[3, 1] = new Vector2Int(-1, 0);
+        kickTable[3, 2] = new Vector2Int(2, 1);
+        kickTable[3, 3] = new Vector2Int(-1, -2);
+
+        kickTable[4, 0] = new Vector2Int(1, 0);
+        kickTable[4, 1] = new Vector2Int(-2, 0);
+        kickTable[4, 2] = new Vector2Int(1, -2);
+        kickTable[4, 3] = new Vector2Int(-2, 1);
+
+        return kickTable;
+    }
+
+    public static Vector2Int[,] GetJLSTZKickTable2(){
+        var kickTable = new Vector2Int[5, 4];
+
+        kickTable[0, 0] = Vector2Int.zero;
+        kickTable[0, 1] = Vector2Int.zero;
+        kickTable[0, 2] = Vector2Int.zero;
+        kickTable[0, 3] = Vector2Int.zero;
+
+        kickTable[1, 0] = Vector2Int.zero;
+        kickTable[1, 1] = new Vector2Int(1,0);
+        kickTable[1, 2] = Vector2Int.zero;
+        kickTable[1, 3] = new Vector2Int(-1, 0);
+
+        kickTable[2, 0] = Vector2Int.zero;
+        kickTable[2, 1] = new Vector2Int(1, -1);
+        kickTable[2, 2] = Vector2Int.zero;
+        kickTable[2, 3] = new Vector2Int(-1, -1);
+
+        kickTable[3, 0] = Vector2Int.zero;
+        kickTable[3, 1] = new Vector2Int(0, 2);
+        kickTable[3, 2] = Vector2Int.zero;
+        kickTable[3, 3] = new Vector2Int(0, 2);
+
+        kickTable[4, 0] = Vector2Int.zero;
+        kickTable[4, 1] = new Vector2Int(1, 2);
+        kickTable[4, 2] = Vector2Int.zero;
+        kickTable[4, 3] = new Vector2Int(-1, 2);
+
+        return kickTable;
+    }
+
+    public static Vector2Int[,] GetIKickTable3(){
+        var kickTable = new Vector2Int[5, 4];
+
+        kickTable[0, 0] = Vector2Int.zero;
+        kickTable[0, 1] = new Vector2Int(-1, 0);
+        kickTable[0, 2] = new Vector2Int(-1, 1);
+        kickTable[0, 3] = new Vector2Int(0, 1);
+
+        kickTable[1, 0] = new Vector2Int(-1, 0);
+        kickTable[1, 1] = Vector2Int.zero;
+        kickTable[1, 2] = new Vector2Int(1, 1);
+        kickTable[1, 3] = new Vector2Int(0, 1);
+
+        kickTable[2, 0] = new Vector2Int(2, 0);
+        kickTable[2, 1] = Vector2Int.zero;
+        kickTable[2, 2] = new Vector2Int(-2, 1);
+        kickTable[2, 3] = new Vector2Int(0, 1);
+
+        kickTable[3, 0] = new Vector2Int(-1, 0);
+        kickTable[3, 1] = new Vector2Int(0, 1);
+        kickTable[3, 2] = new Vector2Int(1, 0);
+        kickTable[3, 3] = new Vector2Int(0, -1);
+
+        kickTable[4, 0] = new Vector2Int(2, 0);
+        kickTable[4, 1] = new Vector2Int(0, -2);
+        kickTable[4, 2] = new Vector2Int(-2, 0);
+        kickTable[4, 3] = new Vector2Int(0, 2);
+
+        return kickTable;
+    }
+
+    public static Vector2Int[,] GetOKickTable(){
+        var kickTable = new Vector2Int[5, 4];
+
+        kickTable[0, 0] = Vector2Int.zero;
+        kickTable[0, 1] = Vector2Int.down;
+        kickTable[0, 2] = new Vector2Int(-1, -1);
+        kickTable[0, 3] = Vector2Int.left;
+
+        return kickTable;
+    }
 }
