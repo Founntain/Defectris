@@ -49,6 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PieceType: 0
   GhostPiece: {fileID: 9049580500161640253, guid: d80a61787bfceb44d8b1e4999e327ee6, type: 3}
+  Quad: {fileID: 0}
   RotationIndex: 0
   Is3CornerRotation: 0
 --- !u!1 &1537054661438499773
@@ -369,7 +370,7 @@ MeshRenderer:
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: cf906422ad17bf44bbc3acfb6d22cb47, type: 2}
+  - {fileID: 2100000, guid: 6a95d62c48247064b9928e6e9687cc0e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

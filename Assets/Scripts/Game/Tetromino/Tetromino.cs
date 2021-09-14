@@ -7,6 +7,7 @@ public class Tetromino : MonoBehaviour
 {
     public PieceType PieceType;
     public GameObject GhostPiece;
+    public GameObject Quad;
     public int RotationIndex;
     public bool Is3CornerRotation;
 
@@ -15,6 +16,12 @@ public class Tetromino : MonoBehaviour
     }
 
     public void FixedUpdate() {
+        var pivot = GetPivotCoordinate();
+        var x = new Vector3(pivot.x, pivot.y, -2);
+
+        GameObject.FindGameObjectWithTag("PivotQuad").transform.position = x;
+
+
         var minos = GetComponentsInChildren<Mino>();
 
         if(minos == null || minos.Length == 0){
@@ -165,45 +172,7 @@ public class Tetromino : MonoBehaviour
         var rotMatrix = clockwise ? GameLogic.ClockwiseRotationMatrix : GameLogic.CounterClockwiseRotationMatrix;
         var gameManager = GameObject.FindGameObjectWithTag("GameManager");
 
-        RotateMinos2(clockwise);
-
-        // if(PieceType == PieceType.I){
-        //     var iOffset = Vector3.zero;
-
-        //     if(clockwise){
-        //         switch(RotationIndex){
-        //             case 0:
-        //                 iOffset = Vector3.right;
-        //                 break;
-        //             case 1:
-        //                 iOffset = Vector3.down;
-        //                 break;
-        //             case 2:
-        //                 iOffset = Vector3.left;
-        //                 break;
-        //             case 3:
-        //                 iOffset = Vector3.up;
-        //                 break;
-        //         }
-        //     }else{
-        //         switch(RotationIndex){
-        //             case 0:
-        //                 iOffset = Vector3.down;
-        //                 break;
-        //             case 3:
-        //                 iOffset = Vector3.right;
-        //                 break;
-        //             case 2:
-        //                 iOffset = Vector3.up;
-        //                 break;
-        //             case 1:
-        //                 iOffset = Vector3.left;
-        //                 break;
-        //         }
-        //     }
-
-        //     transform.position += iOffset;
-        // }
+        RotateMinos3(clockwise);
             
         Vector2Int[,] kickTable = null;
 
@@ -245,7 +214,7 @@ public class Tetromino : MonoBehaviour
         }
 
         if(!isValid){
-            RotateMinos2(!clockwise);
+            RotateMinos3(!clockwise);
             return false;
         }
         
@@ -364,6 +333,28 @@ public class Tetromino : MonoBehaviour
             var newPos = new Vector3(newXPos, newYPos);
 
             mino.transform.localPosition = newPos;
+        }
+    }
+
+    public void RotateMinos3(bool clockwise)
+    {
+        Vector2Int[] rotMatrix = clockwise ? new Vector2Int[2] { new Vector2Int(0, -1), new Vector2Int(1, 0) }
+                                           : new Vector2Int[2] { new Vector2Int(0, 1), new Vector2Int(-1, 0) };
+
+        var pivot = GetPivotCoordinate();
+                                           
+        foreach(var mino in GetMinos()){
+
+            var relativePos = mino.transform.position - pivot;
+
+            var newXPos = (rotMatrix[0].x * relativePos.x) + (rotMatrix[1].x * relativePos.y);
+            var newYPos = (rotMatrix[0].y * relativePos.x) + (rotMatrix[1].y * relativePos.y);
+
+            var newPos = new Vector3(newXPos, newYPos);
+
+            newPos += pivot;
+
+            mino.transform.position = newPos;
         }
     }
 }
